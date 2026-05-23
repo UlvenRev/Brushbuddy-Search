@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
     public bool canClick;
     private GameObject correctHat;
 
+    [SerializeField] private GameObject MenuScreen;
+
     public static GameManager Instance { get; private set; }
 
     void Awake()
@@ -22,6 +24,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // StartCoroutine(GameRound());
+    }
+
+    public void BeginGame()  // Action for the canvas button
+    {
+        MenuScreen.SetActive(false);
         StartCoroutine(GameRound());
     }
 
