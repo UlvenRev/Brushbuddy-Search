@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -7,13 +9,22 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject brushbuddyPrefab;  // The prefab we use for instantiating the object, we will NOT delete this
     private GameObject brushbuddyInstance;  // Where we store the actual instance we will delete later
 
-    private int numberOfSwaps = 3;
+    [SerializeField] private Slider roundsSlider;
+    [SerializeField] private Slider swapsSlider;
+    [SerializeField] private Slider speedSlider;
+    private int numberOfSwaps = 4;
     private int numberOfRounds = 3;
+    private float swapSpeed = 0.85f / 3;
+
     private int roundsCompleted;
     public bool canClick;
     private GameObject correctHat;
 
     [SerializeField] private GameObject MenuScreen;
+
+    [SerializeField] private TMP_Text mainTitle;
+    [SerializeField] private TMP_Text subTitle;
+    [SerializeField] private TMP_Text buttonText;
 
     public static GameManager Instance { get; private set; }
 
@@ -29,6 +40,11 @@ public class GameManager : MonoBehaviour
 
     public void BeginGame()  // Action for the canvas button
     {
+        // Get the settings for the round
+        numberOfSwaps = (int)swapsSlider.value;
+        numberOfRounds = (int)roundsSlider.value;
+        swapSpeed = 0.85f / speedSlider.value;
+
         MenuScreen.SetActive(false);
         StartCoroutine(GameRound());
     }
@@ -37,8 +53,6 @@ public class GameManager : MonoBehaviour
     {
         if (guessedHat == correctHat)
         {
-            Debug.Log("WON");
-
             roundsCompleted++;
             RemoveBrushbuddy();
             if (roundsCompleted < numberOfRounds)
@@ -46,11 +60,22 @@ public class GameManager : MonoBehaviour
                 guessedHat = null;
                 StartCoroutine(GameRound());    
             } 
-            else
-                Debug.Log("WON THE FULL GAME!");
+            else  // Won the full game - show the menu screen with a different title
+            {
+                mainTitle.text = "Well done!";
+                subTitle.text = "You found Brushbuddy! Attentiveness is a great trait for a witch!";
+                buttonText.text = "Play again";
+                MenuScreen.SetActive(true);
+            }
             
-        } else 
-            Debug.Log("LOST");
+        } else  // Lost the game - show the menu screen with a different title
+        {
+            RemoveBrushbuddy();
+            mainTitle.text = "Brushbuddy got away...";
+            subTitle.text = "Better find him before he deals any trouble around Mister Qifrey's atelier...";
+            buttonText.text = "Try again";
+            MenuScreen.SetActive(true);
+        }
     }
 
     IEnumerator GameRound()
@@ -60,7 +85,7 @@ public class GameManager : MonoBehaviour
 
         PlaceBrushbuddy();  // Instantiate the brushbuddy
         yield return StartCoroutine(RaiseAllHats());  // and raise all hats to show where it is (no parameter because we don't need to CHECK the raised hat)
-        yield return new WaitForSeconds(1f);   
+        yield return new WaitForSeconds(0.1f);   
         RemoveBrushbuddy();
 
         yield return StartCoroutine(RunSwaps());
@@ -109,9 +134,9 @@ public class GameManager : MonoBehaviour
     {
         Vector3 hat1Pos = hat1.transform.position;
         Vector3 hat2Pos = hat2.transform.position;
-        hat1.LeanMove(hat2Pos, 0.4f).setEaseInSine();
-        hat2.LeanMove(hat1Pos, 0.4f).setEaseInSine();
+        hat1.LeanMove(hat2Pos, swapSpeed).setEaseInSine();
+        hat2.LeanMove(hat1Pos, swapSpeed).setEaseInSine();
 
-        yield return new WaitForSeconds(0.4f + 0.5f);  // Wait for the animation to finish + a slight pause
+        yield return new WaitForSeconds(swapSpeed + 0.5f);  // Wait for the animation to finish + a slight pause
     }
 }
