@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     private GameObject correctHat;
 
     [SerializeField] private GameObject MenuScreen;
+    [SerializeField] private GameObject RestartButton;
 
     [SerializeField] private TMP_Text mainTitle;
     [SerializeField] private TMP_Text subTitle;
@@ -46,7 +47,15 @@ public class GameManager : MonoBehaviour
         swapSpeed = 0.85f / speedSlider.value;
 
         MenuScreen.SetActive(false);
+        RestartButton.SetActive(true);
         StartCoroutine(GameRound());
+    }
+
+    public void RestartGame()
+    {
+        StopAllCoroutines();
+        RestartButton.SetActive(false);
+        MenuScreen.SetActive(true);
     }
 
     public void CheckGuessedHat(GameObject guessedHat)  // Called only when the hats are lowered completely
