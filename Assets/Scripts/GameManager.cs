@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
         numberOfSwaps = (int)swapsSlider.value;
         numberOfRounds = (int)roundsSlider.value;
         swapSpeed = 0.85f / speedSlider.value;
+        roundsCompleted = 0;
 
         MenuScreen.SetActive(false);
         RestartButton.SetActive(true);
@@ -54,6 +55,14 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         StopAllCoroutines();
+        ShowMenu("Brushbuddy Search!", "Follow the caps closely and choose wisely to find Brushbuddy...", "Begin");
+    }
+
+    private void ShowMenu(string mainTitleText, string subTitleText, string buttonText)
+    {
+        mainTitle.text = mainTitleText;
+        subTitle.text = subTitleText;
+        this.buttonText.text = buttonText;
         RestartButton.SetActive(false);
         MenuScreen.SetActive(true);
     }
@@ -71,19 +80,13 @@ public class GameManager : MonoBehaviour
             } 
             else  // Won the full game - show the menu screen with a different title
             {
-                mainTitle.text = "Well done!";
-                subTitle.text = "You found Brushbuddy! Attentiveness is a great trait for a witch!";
-                buttonText.text = "Play again";
-                MenuScreen.SetActive(true);
+                ShowMenu("Well done!", "You found Brushbuddy! Attentiveness is a great trait for a witch!", "Play again");
             }
             
         } else  // Lost the game - show the menu screen with a different title
         {
             RemoveBrushbuddy();
-            mainTitle.text = "Brushbuddy got away...";
-            subTitle.text = "Better find him before he deals any trouble around Mister Qifrey's atelier...";
-            buttonText.text = "Try again";
-            MenuScreen.SetActive(true);
+            ShowMenu("Brushbuddy got away...", "Better find him before he deals any trouble around Master Qifrey's atelier...", "Try again");
         }
     }
 
@@ -92,7 +95,7 @@ public class GameManager : MonoBehaviour
         canClick = false;
         correctHat = hatsList[1];  // Always under the middle hat for now
 
-        PlaceBrushbuddy();  // Instantiate the brushbuddy
+        if (brushbuddyInstance == null) PlaceBrushbuddy();  // Instantiate the brushbuddy if it's not in the scene
         yield return StartCoroutine(RaiseAllHats());  // and raise all hats to show where it is (no parameter because we don't need to CHECK the raised hat)
         yield return new WaitForSeconds(0.1f);   
         RemoveBrushbuddy();
