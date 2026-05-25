@@ -1,7 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
-using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,23 +7,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject brushbuddyPrefab;  // The prefab we use for instantiating the object, we will NOT delete this
     private GameObject brushbuddyInstance;  // Where we store the actual instance we will delete later
 
-    [SerializeField] private Slider roundsSlider;
-    [SerializeField] private Slider swapsSlider;
-    [SerializeField] private Slider speedSlider;
-    private int numberOfSwaps = 4;
-    private int numberOfRounds = 3;
-    private float swapSpeed = 0.85f / 3;
+    
+    public int numberOfSwaps = 4;
+    public int numberOfRounds = 3;
+    public float swapSpeed = 0.85f / 3;
 
     private int roundsCompleted;
     public bool canClick;
     private GameObject correctHat;
 
-    [SerializeField] private GameObject MenuScreen;
-    [SerializeField] private GameObject RestartButton;
-
-    [SerializeField] private TMP_Text mainTitle;
-    [SerializeField] private TMP_Text subTitle;
-    [SerializeField] private TMP_Text buttonText;
+    public bool progressiveDifficulty;
 
     public static GameManager Instance { get; private set; }
 
@@ -34,37 +25,21 @@ public class GameManager : MonoBehaviour
         Instance = this;
     }
 
-    void Start()
-    {
-        // StartCoroutine(GameRound());
-    }
-
     public void BeginGame()  // Action for the canvas button
     {
         // Get the settings for the round
-        numberOfSwaps = (int)swapsSlider.value;
-        numberOfRounds = (int)roundsSlider.value;
-        swapSpeed = 0.85f / speedSlider.value;
+        UIManager.Instance.GetRoundSettings();
         roundsCompleted = 0;
 
-        MenuScreen.SetActive(false);
-        RestartButton.SetActive(true);
+        UIManager.Instance.MenuScreen.SetActive(false);
+        UIManager.Instance.RestartButton.SetActive(true);
         StartCoroutine(GameRound());
     }
 
     public void RestartGame()
     {
         StopAllCoroutines();
-        ShowMenu("Brushbuddy Search!", "Follow the caps closely and choose wisely to find Brushbuddy...", "Begin");
-    }
-
-    private void ShowMenu(string mainTitleText, string subTitleText, string buttonText)
-    {
-        mainTitle.text = mainTitleText;
-        subTitle.text = subTitleText;
-        this.buttonText.text = buttonText;
-        RestartButton.SetActive(false);
-        MenuScreen.SetActive(true);
+        UIManager.Instance.ShowMenu("Brushbuddy Search!", "Follow the caps closely and choose wisely to find Brushbuddy...", "Begin");
     }
 
     public void CheckGuessedHat(GameObject guessedHat)  // Called only when the hats are lowered completely
@@ -80,13 +55,13 @@ public class GameManager : MonoBehaviour
             } 
             else  // Won the full game - show the menu screen with a different title
             {
-                ShowMenu("Well done!", "You found Brushbuddy! Attentiveness is a great trait for a witch!", "Play again");
+                UIManager.Instance.ShowMenu("Well done!", "You found Brushbuddy! Attentiveness is a great trait for a witch!", "Play again");
             }
             
         } else  // Lost the game - show the menu screen with a different title
         {
             RemoveBrushbuddy();
-            ShowMenu("Brushbuddy got away...", "Better find him before he deals any trouble around Master Qifrey's atelier...", "Try again");
+            UIManager.Instance.ShowMenu("Brushbuddy got away...", "Better find him before he deals any trouble around Master Qifrey's atelier...", "Try again");
         }
     }
 

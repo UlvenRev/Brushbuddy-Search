@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: df59db434c15bc84ba27df5cfeff5c25
+guid: 4b64622817f71294c9cfccdd8e7d697f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2307608483651414744
-    second: Slider FG_0
+      213: 2780540300400067551
+    second: Checkmark_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,8 +51,8 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 200
-  spriteBorder: {x: 12, y: 0, z: 11, w: 0}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Slider FG_0
+      name: Checkmark_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 176
-        height: 7
+        x: 4
+        y: 5
+        width: 21
+        height: 17
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8da68bc80b5460020800000000000000
-      internalID: 2307608483651414744
+      spriteID: fd30109dba6769620800000000000000
+      internalID: 2780540300400067551
       vertices: []
       indices: 
       edges: []
@@ -126,7 +126,7 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    internalID: 0
     vertices: []
     indices: 
     edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Slider FG_0: 2307608483651414744
+      Checkmark_0: 2780540300400067551
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
