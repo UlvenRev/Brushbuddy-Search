@@ -7,16 +7,22 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject brushbuddyPrefab;  // The prefab we use for instantiating the object, we will NOT delete this
     private GameObject brushbuddyInstance;  // Where we store the actual instance we will delete later
 
-    
-    public int numberOfSwaps = 4;
-    public int numberOfRounds = 3;
-    public float swapSpeed = 0.85f / 3;
+    // ------------ Game Settings values --------------
+    public bool progressiveDifficulty;
+
+    public int numberOfSwaps = 4;  // default
+    public int numberOfRounds = 3;  // default
+    public float swapSpeed = 0.85f / 3;  // default
+
+    // These are used only when progressive difficulty is ON:
+    private int progNumOfSwaps = 3;  // Starting from 3 swaps, increse by 1
+    private float progSwapSpeed = 0.85f;  // Decrese by 0.05 each time
+
 
     private int roundsCompleted;
     public bool canClick;
     private GameObject correctHat;
 
-    public bool progressiveDifficulty;
 
     public static GameManager Instance { get; private set; }
 
@@ -27,13 +33,14 @@ public class GameManager : MonoBehaviour
 
     public void BeginGame()  // Action for the canvas button
     {
-        // Get the settings for the round
-        UIManager.Instance.GetRoundSettings();
+        // Get the settings for the round if the settings are custom
+        if (!progressiveDifficulty) UIManager.Instance.GetRoundSettings();
+        
         roundsCompleted = 0;
-
         UIManager.Instance.MenuScreen.SetActive(false);
-        UIManager.Instance.RestartButton.SetActive(true);
-        StartCoroutine(GameRound());
+        UIManager.Instance.ActiveRoundUI.SetActive(true);
+        StartCoroutine(GameRound());   
+
     }
 
     public void RestartGame()
@@ -48,20 +55,36 @@ public class GameManager : MonoBehaviour
         {
             roundsCompleted++;
             RemoveBrushbuddy();
-            if (roundsCompleted < numberOfRounds)
+
+            if (!progressiveDifficulty)
             {
-                guessedHat = null;
-                StartCoroutine(GameRound());    
-            } 
-            else  // Won the full game - show the menu screen with a different title
+                if (roundsCompleted < numberOfRounds)  // Custom play mode with limited rounds
+                {
+                    guessedHat = null;
+                    UIManager.Instance.UpdateRoundsPassedLabel(roundsCompleted);
+
+                    StartCoroutine(GameRound());    
+                } 
+                else UIManager.Instance.ShowMenu("Well done!", "You found Brushbuddy! Attentiveness is a great trait for a witch!", "Play again"); 
+            } else  // Inifnite playmode so just start a new round with increased difficulty
             {
-                UIManager.Instance.ShowMenu("Well done!", "You found Brushbuddy! Attentiveness is a great trait for a witch!", "Play again");
+                if (progSwapSpeed - 0.05f > 0.05f) progSwapSpeed -= 0.05f;  // Speed increases each round
+                else progSwapSpeed = 0.05f;
+
+                if (roundsCompleted % 2 == 0) progNumOfSwaps++;  // Each 2 rounds the number of hat swaps will increase
+
+                UIManager.Instance.UpdateRoundsPassedLabel(roundsCompleted);
+                StartCoroutine(GameRound()); 
             }
             
         } else  // Lost the game - show the menu screen with a different title
         {
             RemoveBrushbuddy();
             UIManager.Instance.ShowMenu("Brushbuddy got away...", "Better find him before he deals any trouble around Master Qifrey's atelier...", "Try again");
+
+            // Reset the values in case we were playing the progressive difficulty mode
+            progNumOfSwaps = 3;
+            progSwapSpeed = 0.85f;
         }
     }
 
@@ -75,7 +98,9 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f);   
         RemoveBrushbuddy();
 
-        yield return StartCoroutine(RunSwaps());
+        if (progressiveDifficulty) yield return StartCoroutine(RunSwaps(progNumOfSwaps));
+        else yield return StartCoroutine(RunSwaps(numberOfSwaps));
+
         PlaceBrushbuddy();
 
         canClick = true;
@@ -105,25 +130,26 @@ public class GameManager : MonoBehaviour
         brushbuddyInstance = null;
     }
 
-    IEnumerator RunSwaps()
+    IEnumerator RunSwaps(int swaps)
     {
-        for (int i = 0; i < numberOfSwaps; i++)
+        for (int i = 0; i < swaps; i++)
         {
             int hat1Index = UnityEngine.Random.Range(0, hatsList.Length);
             int hat2Index = UnityEngine.Random.Range(0, hatsList.Length);
             while (hat1Index == hat2Index) hat2Index = UnityEngine.Random.Range(0, hatsList.Length);  // To avoid choosing the same hat for a swap
 
-            yield return StartCoroutine(SwapTwoHats(hatsList[hat1Index], hatsList[hat2Index]));  // yield return here will make the code WAIT for the coroutine to actually finish before executing the code below   
+            if (progressiveDifficulty) yield return StartCoroutine(SwapTwoHats(hatsList[hat1Index], hatsList[hat2Index], progSwapSpeed));  // yield return here will make the code WAIT for the coroutine to actually finish before executing the code below   
+            else yield return StartCoroutine(SwapTwoHats(hatsList[hat1Index], hatsList[hat2Index], swapSpeed));  // The custom speed set by user
         }
     }
 
-    IEnumerator SwapTwoHats(GameObject hat1, GameObject hat2)
+    IEnumerator SwapTwoHats(GameObject hat1, GameObject hat2, float speed)
     {
         Vector3 hat1Pos = hat1.transform.position;
         Vector3 hat2Pos = hat2.transform.position;
-        hat1.LeanMove(hat2Pos, swapSpeed).setEaseInSine();
-        hat2.LeanMove(hat1Pos, swapSpeed).setEaseInSine();
+        hat1.LeanMove(hat2Pos, speed).setEaseInSine();
+        hat2.LeanMove(hat1Pos, speed).setEaseInSine();
 
-        yield return new WaitForSeconds(swapSpeed + 0.5f);  // Wait for the animation to finish + a slight pause
+        yield return new WaitForSeconds(speed + 0.5f);  // Wait for the animation to finish + a slight pause
     }
 }
