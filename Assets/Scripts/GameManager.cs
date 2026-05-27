@@ -3,9 +3,10 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] hatsList;
     [SerializeField] private GameObject brushbuddyPrefab;  // The prefab we use for instantiating the object, we will NOT delete this
     private GameObject brushbuddyInstance;  // Where we store the actual instance we will delete later
+    private GameObject[] hatsList;
+    [SerializeField] private GameObject hatPrefab;
 
     // ------------ Game Settings values --------------
     public bool progressiveDifficulty;
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
     public int numberOfSwaps = 4;  // default
     public int numberOfRounds = 3;  // default
     public float swapSpeed = 0.85f / 3;  // default
+    public int numberOfHats = 3;
 
     // These are used only when progressive difficulty is ON:
     private int progNumOfSwaps = 3;  // Starting from 3 swaps, increse by 1
@@ -33,14 +35,52 @@ public class GameManager : MonoBehaviour
 
     public void BeginGame()  // Action for the canvas button
     {
+        RemoveHats();
+
         // Get the settings for the round if the settings are custom
         if (!progressiveDifficulty) UIManager.Instance.GetRoundSettings();
+
+        InstantiateHats();
         
         roundsCompleted = 0;
         UIManager.Instance.MenuScreen.SetActive(false);
         UIManager.Instance.ActiveRoundUI.SetActive(true);
         StartCoroutine(GameRound());   
 
+    }
+
+    private void InstantiateHats()
+    {
+        hatsList = new GameObject[numberOfHats];
+
+        float gap;
+        float startPoint;
+        if (numberOfHats % 2 == 0)  // For even number of hats, they need to have an offset which 
+        {
+            gap = 2f;
+            startPoint = -1 - gap * (Mathf.Floor(numberOfHats / 2) - 1);  // will "start" from -1 and not 0, so e.g. -3 -1 1 3 for 4 hats (look centered on the screen)
+        }
+        else  // For odd number of hats, they have the middle hat at 0
+        {
+            gap = 2.5f;
+            startPoint = 0 - gap * Mathf.Floor(numberOfHats / 2);  // So e.g. -2.5 0 2.5 for 3 hats (and they look centered on the screen)
+        }
+
+        for (int i = 0; i < numberOfHats; i++) 
+        {
+            GameObject hat = Instantiate(hatPrefab, new Vector3(startPoint + gap * i, 0, 0), Quaternion.identity);
+            hatsList[i] = hat;
+        }
+    }
+
+    private void RemoveHats()
+    {
+        GameObject[] oldHats;
+        oldHats = GameObject.FindGameObjectsWithTag("Hat");
+        foreach (var i in oldHats)
+        {
+            Destroy(i);
+        }
     }
 
     public void RestartGame()

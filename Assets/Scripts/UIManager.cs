@@ -7,6 +7,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider roundsSlider;
     [SerializeField] private Slider swapsSlider;
     [SerializeField] private Slider speedSlider;
+    [SerializeField] private Slider hatsSlider;
 
     [SerializeField] private TMP_Text mainTitle;
     [SerializeField] private TMP_Text subTitle;
@@ -32,6 +33,7 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.numberOfSwaps = (int)swapsSlider.value;
         GameManager.Instance.numberOfRounds = (int)roundsSlider.value;
         GameManager.Instance.swapSpeed = 0.85f / speedSlider.value;
+        GameManager.Instance.numberOfHats = (int)hatsSlider.value;
     }
 
     public void ChangeSettingsAppearance()
@@ -41,6 +43,7 @@ public class UIManager : MonoBehaviour
             roundsSlider.interactable = false;
             swapsSlider.interactable = false;
             speedSlider.interactable = false;
+            hatsSlider.interactable = false;
             foreach (TMP_Text text in settingsText)
             {
                 text.color = disabledColor;
@@ -50,6 +53,7 @@ public class UIManager : MonoBehaviour
             roundsSlider.interactable = true;
             swapsSlider.interactable = true;
             speedSlider.interactable = true;
+            hatsSlider.interactable = true;
             foreach (TMP_Text text in settingsText)
             {
                 text.color = enabledColor;
