@@ -11,10 +11,10 @@ public class GameManager : MonoBehaviour
     // ------------ Game Settings values --------------
     public bool progressiveDifficulty;
 
-    public int numberOfSwaps = 4;  // default
-    public int numberOfRounds = 3;  // default
-    public float swapSpeed = 0.85f / 3;  // default
-    public int numberOfHats = 3;
+    public int numberOfSwaps;
+    public int numberOfRounds;
+    public float swapSpeed;
+    public int numberOfHats;
 
     // These are used only when progressive difficulty is ON:
     private int progNumOfSwaps = 3;  // Starting from 3 swaps, increse by 1
@@ -39,6 +39,14 @@ public class GameManager : MonoBehaviour
 
         // Get the settings for the round if the settings are custom
         if (!progressiveDifficulty) UIManager.Instance.GetRoundSettings();
+        else
+        {
+            // Take default values:
+            numberOfSwaps = 4; 
+            numberOfRounds = 3;  
+            swapSpeed = 0.85f / 3;  
+            numberOfHats = 3;
+        }
 
         InstantiateHats();
         
@@ -94,7 +102,6 @@ public class GameManager : MonoBehaviour
         if (guessedHat == correctHat)
         {
             roundsCompleted++;
-            RemoveBrushbuddy();
 
             if (!progressiveDifficulty)
             {
@@ -119,7 +126,6 @@ public class GameManager : MonoBehaviour
             
         } else  // Lost the game - show the menu screen with a different title
         {
-            RemoveBrushbuddy();
             UIManager.Instance.ShowMenu("Brushbuddy got away...", "Better find him before he deals any trouble around Master Qifrey's atelier...", "Try again");
 
             // Reset the values in case we were playing the progressive difficulty mode
@@ -133,7 +139,9 @@ public class GameManager : MonoBehaviour
         canClick = false;
         correctHat = hatsList[1];  // Always under the middle hat for now
 
-        if (brushbuddyInstance == null) PlaceBrushbuddy();  // Instantiate the brushbuddy if it's not in the scene
+        RemoveBrushbuddy();
+        PlaceBrushbuddy();
+        
         yield return StartCoroutine(RaiseAllHats());  // and raise all hats to show where it is (no parameter because we don't need to CHECK the raised hat)
         yield return new WaitForSeconds(0.1f);   
         RemoveBrushbuddy();
